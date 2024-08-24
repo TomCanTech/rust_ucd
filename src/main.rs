@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     let example_entry = Entry {
         index: 0,
         headword: "example".to_string(),
-        relatives: None,
+        relatives: Some(vec![2,3,4]),
         part_of_speech: 1,
         definition: vec!["definition_1".to_string(), "definition_2".to_string()],
         notes: "notes_example".to_string(),
@@ -69,20 +69,21 @@ fn vec_to_string<T: ToString>(vector: Vec<T>) -> String {
 }
 
 fn relatives_to_vec(relatives: String) -> Option<Vec<i32>> {
-    if relatives == "" {
-        return None;
-    } else {
-        Some(
+    match relatives.len() {
+        0 => None,
+        other => Some (
             relatives
                 .split('#')
+                .filter(|num| num.len() != 0)
                 .map(|num| num.parse().unwrap())
-                .collect(),
-        )
-    }
+                .collect())
+        }
+
 }
 
 fn definitions_to_vec(definitions: String) -> Vec<String> {
     definitions.split('#')
     .map(|def| def.to_string())
+    .filter(|def| def.len() != 0)
     .collect()
 }
