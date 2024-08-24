@@ -3,5 +3,6 @@ name = "rust_ucd"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-rusqlite = "0.32.1"
+[dependencies.rusqlite]
+version = "0.32.0"
+features = ["bundled"]
