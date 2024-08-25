@@ -1,3 +1,5 @@
+use rusqlite::ffi::Error;
+
 #[derive(Debug)]
 pub struct Entry {
     pub index: i32,
@@ -46,14 +48,37 @@ impl Entry {
 }
 
 impl EntryRelative{
-    pub fn build(rel_id: String) -> Result<Self,String>{
-        match rel_id.chars()
+    pub fn build(&self, rel_id: String) -> Result<Self,String>{
+        if rel_id.len() > 1 {
+            match rel_id.chars()
             .nth(0)
             .unwrap() {
-            'a' => Ok(EntryRelative::EntryAncestor(rel_id[1..].parse().unwrap())),
-            'd' => Ok(EntryRelative::EntryDescendant(rel_id[1..].parse().unwrap())),
-            'c' => Ok(EntryRelative::EntryCousin(rel_id[1..].parse().unwrap())),
+            'a' => {
+                match self.parse_rel_id(rel_id){
+                    Ok(id) => Ok(EntryRelative::EntryAncestor(id)),
+                    Err(error) => Err(error)
+                }},
+            'd' => {
+                match self.parse_rel_id(rel_id){
+                    Ok(id) => Ok(EntryRelative::EntryAncestor(id)),
+                    Err(error) => Err(error)
+                }},
+            'c' => {
+                match self.parse_rel_id(rel_id){
+                    Ok(id) => Ok(EntryRelative::EntryAncestor(id)),
+                    Err(error) => Err(error)
+                }},
             _ => Err("Relative type not implemented".to_string())
+            }}
+        else {
+            Err("No relative id provided".to_string())
+        }
+    }
+    fn parse_rel_id(&self, rel_id: String) -> Result<i32,String>{
+        match rel_id[1..].chars()
+        .all(|digit| digit.is_numeric()){
+            true => Ok(rel_id[1..].parse().unwrap()),
+            false => Err("Characters succeeding initial do not make a valid id".to_string())
         }
     }
 }
