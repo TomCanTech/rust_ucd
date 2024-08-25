@@ -1,8 +1,8 @@
+mod dictionary;
 mod entry;
 
-use rusqlite::{Connection, Result};
-
 use entry::Entry;
+use rusqlite::{Connection, Result};
 fn main() -> Result<()> {
     let connection = Connection::open_in_memory()?;
     connection.execute(
