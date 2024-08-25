@@ -20,7 +20,7 @@ fn main() -> Result<()> {
     let example_entry = Entry::build(
         0,
         "example".to_string(),
-        Some(vec![2,3,4]),
+        Some(vec![2, 3, 4]),
         1,
         vec!["definition_1".to_string(), "definition_2".to_string()],
         "notes_example".to_string(),
@@ -66,17 +66,15 @@ fn vec_to_string<T: ToString>(vector: Vec<T>) -> String {
 fn relatives_to_vec(relatives: String) -> Option<Vec<i32>> {
     match relatives.len() {
         0 => None,
-        other => Some (
+        other => Some(
             relatives
                 .split('#')
                 .map(|num| num.parse().unwrap())
-                .collect())
-        }
-
+                .collect(),
+        ),
+    }
 }
 
 fn definitions_to_vec(definitions: String) -> Vec<String> {
-    definitions.split('#')
-    .map(|def| def.to_string())
-    .collect()
+    definitions.split('#').map(|def| def.to_string()).collect()
 }
