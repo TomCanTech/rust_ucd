@@ -1,4 +1,8 @@
-use rusqlite::{params, types::Null, Connection, Result};
+mod entry;
+
+use rusqlite::{Connection, Result};
+
+use entry::Entry;
 fn main() -> Result<()> {
     let connection = Connection::open_in_memory()?;
     connection.execute(
@@ -13,14 +17,14 @@ fn main() -> Result<()> {
         (),
     )?;
 
-    let example_entry = Entry {
-        index: 0,
-        headword: "example".to_string(),
-        relatives: Some(vec![2,3,4]),
-        part_of_speech: 1,
-        definition: vec!["definition_1".to_string(), "definition_2".to_string()],
-        notes: "notes_example".to_string(),
-    };
+    let example_entry = Entry::build(
+        0,
+        "example".to_string(),
+        Some(vec![2,3,4]),
+        1,
+        vec!["definition_1".to_string(), "definition_2".to_string()],
+        "notes_example".to_string(),
+    );
 
     connection.execute(
         "INSERT INTO entry (headword, relatives, part_of_speech, definition, notes) VALUES (?1,?2,?3,?4,?5)", 
@@ -48,15 +52,6 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug)]
-struct Entry {
-    index: i32,
-    headword: String,
-    relatives: Option<Vec<i32>>,
-    part_of_speech: i32,
-    definition: Vec<String>,
-    notes: String,
-}
 fn vec_to_string<T: ToString>(vector: Vec<T>) -> String {
     let mut def_string = String::new();
 
@@ -64,7 +59,7 @@ fn vec_to_string<T: ToString>(vector: Vec<T>) -> String {
         def_string.push_str(&member.to_string());
         def_string.push('#')
     }
-
+    def_string.pop();
     def_string
 }
 
@@ -74,7 +69,6 @@ fn relatives_to_vec(relatives: String) -> Option<Vec<i32>> {
         other => Some (
             relatives
                 .split('#')
-                .filter(|num| num.len() != 0)
                 .map(|num| num.parse().unwrap())
                 .collect())
         }
@@ -84,6 +78,5 @@ fn relatives_to_vec(relatives: String) -> Option<Vec<i32>> {
 fn definitions_to_vec(definitions: String) -> Vec<String> {
     definitions.split('#')
     .map(|def| def.to_string())
-    .filter(|def| def.len() != 0)
     .collect()
 }
