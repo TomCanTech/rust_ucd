@@ -1,5 +1,4 @@
 use crate::entry::Entry;
-use std::cell::Ref;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -11,25 +10,32 @@ struct Dictionary {
     pos_map: Rc<RefCell<HashMap<i32, (String, String)>>>,
 }
 impl Dictionary{
-    fn from_sqlite(conn: &rusqlite::Connection) -> Self{
-        let mut system_map: HashMap<i32, (String,String)> = HashMap::new(); 
-        let mut sys_map_retrieve_stmt = conn.prepare("SELECT key, abbreviation, full FROM system_map").unwrap();
-        let sys_map_iter =sys_map_retrieve_stmt.query_map([],   |row| {
-            Ok((row.get_unwrap::<usize,i32>(0), row.get::<usize,String>(1),row.get::<usize,String>(2)))
-        });
-        for pair in sys_map_iter.unwrap() {
-            let (x,y,z) = pair.unwrap();
-            system_map.insert(x, (y.unwrap(),z.unwrap()));
-        }
-
-        let mut pos_map_retrieve_stmt = conn.prepare("SELECT key, abbreviation, full FROM pos_map").unwrap();
+    fn from_sqlite(conn: &rusqlite::Connection) -> Result<Self>{
+        let mut sys_map = Dictionary::make_hash(conn, "SELECT key, abbreviation, full FROM system_map")?;
+        let mut pos_map = Dictionary::make_hash(conn, "SELECT key, abbreviation, full FROM pos_map")?;
+        let mut dictionary = Dictionary{
+            entries: vec![],
+            system_map: Rc::new(RefCell::new(sys_map)),
+            pos_map: Rc::new(RefCell::new(pos_map)),
+        };
         let mut entry_retrieve_stmt = conn.prepare("SELECT id, headword, relatives,part_of_speech,definition,notes FROM entry").unwrap();
 
-        Dictionary{
-            entries: vec![],
-            system_map: Rc::new(RefCell::new(HashMap::new())),
-            pos_map: Rc::new(RefCell::new(HashMap::new())),
-        }
+        Ok(dictionary)
+    }
+    fn make_hash(conn: &rusqlite::Connection,retrieve_stmt: &str) -> Result<HashMap<i32,(String,String)>> {
+        let mut map_retrieve_stmt = conn.prepare(retrieve_stmt)?;
+        let map_iter = map_retrieve_stmt.query_map([],   |row| {
+            Ok((row.get_unwrap::<usize,i32>(0), row.get::<usize,String>(1),row.get::<usize,String>(2)))
+        });
+
+        let mut map: HashMap<i32,(String,String)> = HashMap::new();
+        for pair in map_iter.unwrap() {
+            match pair {
+                Ok((x,y,z)) => {map.insert(x,(y?,z?));},
+                Err(_) => break
+            }
+        };
+        Ok(map)
     }
 
 }

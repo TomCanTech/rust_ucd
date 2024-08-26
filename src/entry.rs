@@ -1,3 +1,5 @@
+pub mod entryfields;
+
 use entryfields::{EntryRelative, Headword};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -23,8 +25,6 @@ pub struct Entry {
     pub definition: Vec<String>,
     pub notes: String,
 }
-
-pub mod entryfields;
 
 impl Entry {
     pub fn contains(&self, query: &String) -> bool {
