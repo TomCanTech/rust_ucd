@@ -16,39 +16,9 @@ fn main() -> Result<()> {
             )",
         (),
     )?;
-
-    let example_entry = Entry::build(
-        0,
-        "example".to_string(),
-        Some(vec![2, 3, 4]),
-        1,
-        vec!["definition_1".to_string(), "definition_2".to_string()],
-        "notes_example".to_string(),
-    );
-
-    connection.execute(
-        "INSERT INTO entry (headword, relatives, part_of_speech, definition, notes) VALUES (?1,?2,?3,?4,?5)", 
-        (&example_entry.headword,
-            vec_to_string(example_entry.relatives.unwrap_or_else(|| vec![])),
-            &example_entry.part_of_speech,
-            vec_to_string(example_entry.definition),
-            &example_entry.notes))?;
-
     let mut stmt = connection
         .prepare("Select id, headword, relatives, part_of_speech, definition,notes FROM entry")?;
-    let entry_iter = stmt.query_map([], |row| {
-        Ok(Entry {
-            index: row.get(0)?,
-            headword: row.get(1)?,
-            relatives: relatives_to_vec(row.get(2).unwrap()),
-            part_of_speech: row.get(3)?,
-            definition: definitions_to_vec(row.get(4).unwrap()),
-            notes: row.get(5)?,
-        })
-    })?;
-    for entry in entry_iter {
-        println!("Found entry {:?}", entry.unwrap());
-    }
+
     Ok(())
 }
 

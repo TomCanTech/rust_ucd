@@ -1,8 +1,7 @@
-
 #[derive(PartialEq, Debug)]
 pub struct Headword {
-    sys_headword: String,
-    sys_map: i32,
+    pub sys_headword: String,
+    pub sys_key: i32,
 }
 
 #[derive(PartialEq, Debug)]
@@ -41,7 +40,6 @@ impl EntryRelative {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
