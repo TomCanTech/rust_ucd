@@ -1,4 +1,2 @@
 pub mod dictionary;
-fn main() {
-    
-}
+fn main() {}

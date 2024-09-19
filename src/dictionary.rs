@@ -1,10 +1,10 @@
-pub mod entry;
 pub mod content;
+pub mod entry;
 
-use entry::Entry;
 use content::Content;
-use std::collections::HashMap;
+use entry::Entry;
 use rusqlite::Connection;
+use std::collections::HashMap;
 
 pub struct Dictionary {
     entries: Vec<Entry>,
@@ -13,7 +13,7 @@ pub struct Dictionary {
 }
 
 impl Dictionary {
-    fn get_entries(conn: Connection) -> Self {
+    fn get_entries(conn: &Connection) -> Self {
         let mut entry_stmt = conn.prepare("SELECT * FROM entries").unwrap();
         let entry_column_len = entry_stmt.column_count();
         let entries_iter = entry_stmt
@@ -35,7 +35,7 @@ impl Dictionary {
             entry_data_columns: vec![],
         }
     }
-    fn sort_entries(&self) {   
+    fn sort_entries(&self) {
         todo!()
     }
 }
