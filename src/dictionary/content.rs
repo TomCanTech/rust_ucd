@@ -1,3 +1,4 @@
+#[derive(Eq)]
 pub enum Content {
     Independent(String),
     Codependent(String, String),
@@ -5,6 +6,7 @@ pub enum Content {
     Mapped(i64),
     Multiple(Vec<Content>),
 }
+
 impl Content {
     pub fn parse(contents: String) -> Self {
         if contents.contains(';') {
@@ -27,6 +29,16 @@ impl Content {
         }
     }
 }
+
+impl Ord for Content{
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match Content::partial_cmp(&self, other) {
+            None => std::cmp::Ordering::Equal,
+            Some(order) => order
+        }
+    }
+}
+
 impl PartialEq for Content{
     fn eq(&self, other: &Self) -> bool {
         match self {
