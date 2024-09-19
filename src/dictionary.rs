@@ -35,7 +35,7 @@ impl Dictionary {
             entry_data_columns: vec![],
         }
     }
-    fn sort_entries(&self) {
-        todo!()
+    fn sort_entries(&mut self) {
+        self.entries.sort();
     }
 }
