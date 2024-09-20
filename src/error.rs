@@ -1,4 +1,5 @@
 use derive_more::From;
+
 pub type Result<T> = core::result::Result<T, Error>;
 #[derive(Debug, From)]
 pub enum Error {
@@ -10,6 +11,7 @@ pub enum Error {
     ParseInt(std::num::ParseIntError),
     #[from]
     Rusqlite(rusqlite::Error),
+    
 }
 
 impl core::fmt::Display for Error {
@@ -18,3 +20,4 @@ impl core::fmt::Display for Error {
     }
 }
 impl std::error::Error for Error {}
+
