@@ -11,7 +11,6 @@ pub enum Error {
     ParseInt(std::num::ParseIntError),
     #[from]
     Rusqlite(rusqlite::Error),
-    
 }
 
 impl core::fmt::Display for Error {
@@ -20,4 +19,3 @@ impl core::fmt::Display for Error {
     }
 }
 impl std::error::Error for Error {}
-

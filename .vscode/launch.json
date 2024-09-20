@@ -32,14 +32,14 @@
                 "args": [
                     "build",
                     "--bin=rust_ucd",
-                    "--package=rust_ucd"
+                    "--package=rust_ucd",
                 ],
                 "filter": {
                     "name": "rust_ucd",
                     "kind": "bin"
                 }
             },
-            "args": [],
+            "args": ["--db-path", "C:\\Users\\Shepherd\\Documents\\Personal Projects\\Programming\\rust\\rust_ucd\\target\\debug\\rust_ucd.db"],
             "cwd": "${workspaceFolder}"
         },
         {

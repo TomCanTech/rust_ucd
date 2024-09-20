@@ -1,7 +1,6 @@
 pub mod entry_fields;
 
 use crate::dictionary::entry::entry_fields::Relative;
-use crate::error::{Error, Result};
 
 #[derive(PartialEq, Debug)]
 pub struct Entry {
@@ -14,22 +13,10 @@ pub struct Entry {
     notes: Option<String>,
 }
 
-impl Entry {
-    fn new() -> Self {
-        Entry {
-            id: 0,
-            headword: vec![],
-            mutation: None,
-            relatives: None,
-            pos: vec![],
-            definition: vec![],
-            notes: None,
-        }
-    }
-}
+impl Entry {}
 pub struct EntryBuilder {
     id: i64,
-    pub headword: Vec<(String, i64)>,
+    headword: Vec<(String, i64)>,
     mutation: Option<i64>,
     relatives: Option<Vec<Relative>>,
     pos: Vec<i64>,
@@ -108,11 +95,4 @@ impl EntryBuilder {
             notes: self.notes,
         }
     }
-}
-
-#[test]
-fn builder_test() {
-    let mut entry = Entry::new();
-    let entry_from_builder = EntryBuilder::new(0).build();
-    assert_eq!(entry, entry_from_builder)
 }

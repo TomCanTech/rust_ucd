@@ -4,14 +4,14 @@ pub use self::error::{Error, Result};
 
 use clap::Parser;
 use dictionary::Dictionary;
-use std::path::PathBuf;
 use rusqlite::Connection;
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(version,about, long_about = None)]
-struct Args{
+struct Args {
     #[arg(short, long, value_name = "FILE", help = "Read from database file")]
-    db_path: PathBuf
+    db_path: PathBuf,
 }
 
 fn main() -> Result<()> {
