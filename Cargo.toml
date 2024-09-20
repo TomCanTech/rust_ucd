@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies.rusqlite]
 version = "0.32.0"
 features = ["bundled"]
+[dependencies]
+derive_more = {version = "1", features = ["full"]}

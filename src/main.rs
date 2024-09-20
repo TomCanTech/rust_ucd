@@ -1,5 +1,6 @@
-pub type Result<T> = core::result::Result<T, Error>;
-pub type Error = Box<dyn std::error::Error>;
+pub mod dictionary;
+pub mod error;
+pub use self::error::{Error, Result};
 
 fn main() -> Result<()> {
     Ok(())
