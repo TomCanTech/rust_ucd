@@ -78,9 +78,11 @@ impl EntryBuilder {
         self.definition_data = def_data_vec;
         self
     }
-    pub fn notes(mut self, notes: String) -> Self {
-        self.notes = Some(notes);
-        self
+    pub fn notes(mut self, notes: Option<String>) -> Self {
+        match notes {
+            None => {self},
+            Some(notes) => {self.notes = Some(notes); self}
+        }
     }
     pub fn build(self) -> Entry{
         Entry {
