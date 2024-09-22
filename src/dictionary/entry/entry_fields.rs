@@ -18,3 +18,29 @@ impl Relative {
         }
     }
 }
+#[derive(PartialEq, Debug)]
+pub struct DefinitionData {
+    pub pos: i64,
+    pub definition: String
+}
+
+impl DefinitionData {
+    pub fn new(pos: Option<&i64>, def: Option<&String>) -> Option<Self>{
+        match pos {
+            None => def.map(|def| {DefinitionData{
+                 pos: 0,
+                 definition: def.to_string()
+                }}),
+            Some(pos) => match def {
+                None => Some({DefinitionData{
+                        pos: *pos,
+                        definition: "NO DEFINITION ASSOCIATED".to_string()
+                    }}),
+                Some(def) => Some({DefinitionData{
+                    pos: *pos,
+                    definition: def.to_string()
+                }})
+            }
+        }
+    }
+}

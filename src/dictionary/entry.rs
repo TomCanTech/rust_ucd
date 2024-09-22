@@ -1,6 +1,7 @@
 pub mod entry_fields;
 
-use crate::dictionary::entry::entry_fields::Relative;
+use entry_fields::{DefinitionData,Relative};
+use std::cmp::max;
 
 #[derive(PartialEq, Debug)]
 pub struct Entry {
@@ -8,8 +9,7 @@ pub struct Entry {
     headword: Vec<(String, i64)>,
     mutation: Option<i64>,
     relatives: Option<Vec<Relative>>,
-    pos: Vec<i64>,
-    definition: Vec<String>,
+    definition_data: Vec<DefinitionData>,
     notes: Option<String>,
 }
 
@@ -19,23 +19,22 @@ pub struct EntryBuilder {
     headword: Vec<(String, i64)>,
     mutation: Option<i64>,
     relatives: Option<Vec<Relative>>,
-    pos: Vec<i64>,
-    definition: Vec<String>,
+    definition_data: Vec<DefinitionData>,
     notes: Option<String>,
 }
 
 impl EntryBuilder {
-    pub fn new(id: i64) -> EntryBuilder {
+    pub fn new(id: i64) -> EntryBuilder{
         EntryBuilder {
             id,
             headword: vec![],
             mutation: None,
             relatives: None,
-            pos: vec![],
-            definition: vec![],
+            definition_data: vec![],
             notes: None,
         }
     }
+
     pub fn headword(mut self, headword: String) -> Self {
         let headword = headword.split(';');
         let mut headword_vec: Vec<(String, i64)> = vec![];
@@ -64,35 +63,34 @@ impl EntryBuilder {
         self.relatives = Some(relatives_vec);
         self
     }
-    pub fn pos(mut self, pos: String) -> Self {
-        let pos = pos.split(';');
-        let mut pos_vec: Vec<i64> = vec![];
-        for p in pos {
-            if let Ok(pos) = p.parse() {
-                pos_vec.push(pos);
+    pub fn definition_data(mut self, pos: String, definition: String) -> Self {
+        let pos_vec: Vec<i64> = pos.split(';').filter_map(|pos| pos.parse().ok()).collect();
+        let def_vec: Vec<String> = definition.split(';').map(|def| def.to_string()).collect();
+        let mut def_data_vec: Vec<DefinitionData> = vec![];
+        for def_data_member in 0..max(pos_vec.len(), def_vec.len()) {
+            let pos = pos_vec.get(def_data_member);
+            let def = def_vec.get(def_data_member);
+            match DefinitionData::new(pos, def) {
+                None => {},
+                Some(data) => def_data_vec.push(data),
             }
         }
-        self.pos = pos_vec;
-        self
-    }
-    pub fn definition(mut self, definition: String) -> Self {
-        let definition = definition.split(';');
-        self.definition = definition.map(|def| def.to_string()).collect();
+        self.definition_data = def_data_vec;
         self
     }
     pub fn notes(mut self, notes: String) -> Self {
         self.notes = Some(notes);
         self
     }
-    pub fn build(self) -> Entry {
+    pub fn build(self) -> Entry{
         Entry {
             id: self.id,
             headword: self.headword,
             mutation: self.mutation,
             relatives: self.relatives,
-            pos: self.pos,
-            definition: self.definition,
+            definition_data: self.definition_data,
             notes: self.notes,
         }
+
     }
 }

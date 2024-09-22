@@ -39,7 +39,7 @@
                     "kind": "bin"
                 }
             },
-            "args": ["--db-path", "C:\\Users\\Shepherd\\Documents\\Personal Projects\\Programming\\rust\\rust_ucd\\target\\debug\\rust_ucd.db"],
+            "args": ["--db-path", "rust_ucd.db"],
             "cwd": "${workspaceFolder}"
         },
         {
