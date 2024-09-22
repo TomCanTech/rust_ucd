@@ -48,21 +48,31 @@ impl EntryBuilder {
         self.headword = headword_vec;
         self
     }
-    pub fn mutation(mut self, mutation: i64) -> Self {
-        self.mutation = Some(mutation);
-        self
-    }
-    pub fn relatives(mut self, relatives: String) -> Self {
-        let relatives = relatives.split(';');
-        let mut relatives_vec = vec![];
-        for relative in relatives {
-            if let Ok(rel) = Relative::new(relative) {
-                relatives_vec.push(rel)
+    pub fn mutation(mut self, mutation: Option<i64>) -> Self {
+        match mutation {
+            Some(mutation) => {
+                match mutation {
+                    0 => {self},
+                    _ => {self.mutation = Some(mutation); self}
+                }
             }
+            None => {self}
         }
-        self.relatives = Some(relatives_vec);
-        self
     }
+    pub fn relatives(mut self, relatives: Option<String>) -> Self {
+        match relatives {
+        Some(relatives) => {let relatives = relatives.split(';');
+            let mut relatives_vec = vec![];
+            for relative in relatives {
+                if let Ok(rel) = Relative::new(relative) {
+                    relatives_vec.push(rel)
+                }
+            }
+            self.relatives = Some(relatives_vec);
+            self
+        }
+        None => {self}
+    }}
     pub fn definition_data(mut self, pos: String, definition: String) -> Self {
         let pos_vec: Vec<i64> = pos.split(';').filter_map(|pos| pos.parse().ok()).collect();
         let def_vec: Vec<String> = definition.split(';').map(|def| def.to_string()).collect();
