@@ -1,6 +1,6 @@
 pub mod entry_fields;
 
-use entry_fields::{DefinitionData,Relative};
+use entry_fields::{DefinitionData, Relative};
 use std::cmp::max;
 
 #[derive(PartialEq, Debug)]
@@ -24,7 +24,7 @@ pub struct EntryBuilder {
 }
 
 impl EntryBuilder {
-    pub fn new(id: i64) -> EntryBuilder{
+    pub fn new(id: i64) -> EntryBuilder {
         EntryBuilder {
             id,
             headword: vec![],
@@ -50,29 +50,32 @@ impl EntryBuilder {
     }
     pub fn mutation(mut self, mutation: Option<i64>) -> Self {
         match mutation {
-            Some(mutation) => {
-                match mutation {
-                    0 => {self},
-                    _ => {self.mutation = Some(mutation); self}
+            Some(mutation) => match mutation {
+                0 => self,
+                _ => {
+                    self.mutation = Some(mutation);
+                    self
                 }
-            }
-            None => {self}
+            },
+            None => self,
         }
     }
     pub fn relatives(mut self, relatives: Option<String>) -> Self {
         match relatives {
-        Some(relatives) => {let relatives = relatives.split(';');
-            let mut relatives_vec = vec![];
-            for relative in relatives {
-                if let Ok(rel) = Relative::new(relative) {
-                    relatives_vec.push(rel)
+            Some(relatives) => {
+                let relatives = relatives.split(';');
+                let mut relatives_vec = vec![];
+                for relative in relatives {
+                    if let Ok(rel) = Relative::new(relative) {
+                        relatives_vec.push(rel)
+                    }
                 }
+                self.relatives = Some(relatives_vec);
+                self
             }
-            self.relatives = Some(relatives_vec);
-            self
+            None => self,
         }
-        None => {self}
-    }}
+    }
     pub fn definition_data(mut self, pos: String, definition: String) -> Self {
         let pos_vec: Vec<i64> = pos.split(';').filter_map(|pos| pos.parse().ok()).collect();
         let def_vec: Vec<String> = definition.split(';').map(|def| def.to_string()).collect();
@@ -81,7 +84,7 @@ impl EntryBuilder {
             let pos = pos_vec.get(def_data_member);
             let def = def_vec.get(def_data_member);
             match DefinitionData::new(pos, def) {
-                None => {},
+                None => {}
                 Some(data) => def_data_vec.push(data),
             }
         }
@@ -90,11 +93,14 @@ impl EntryBuilder {
     }
     pub fn notes(mut self, notes: Option<String>) -> Self {
         match notes {
-            None => {self},
-            Some(notes) => {self.notes = Some(notes); self}
+            None => self,
+            Some(notes) => {
+                self.notes = Some(notes);
+                self
+            }
         }
     }
-    pub fn build(self) -> Entry{
+    pub fn build(self) -> Entry {
         Entry {
             id: self.id,
             headword: self.headword,
@@ -103,6 +109,5 @@ impl EntryBuilder {
             definition_data: self.definition_data,
             notes: self.notes,
         }
-
     }
 }
