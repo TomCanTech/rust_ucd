@@ -1,5 +1,6 @@
 pub mod dictionary;
 pub mod error;
+pub mod ui;
 pub use self::error::{Error, Result};
 
 use clap::Parser;
