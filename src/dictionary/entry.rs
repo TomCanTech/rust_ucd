@@ -77,17 +77,12 @@ impl EntryBuilder {
         }
     }
     pub fn definition_data(mut self, pos: String, definition: String) -> Self {
-        let pos_vec: Vec<i64> = pos.split(';').filter_map(|pos| pos.parse().ok()).collect();
-        let def_vec: Vec<String> = definition.split(';').map(|def| def.to_string()).collect();
-        let mut def_data_vec: Vec<DefinitionData> = vec![];
-        for def_data_member in 0..max(pos_vec.len(), def_vec.len()) {
-            let pos = pos_vec.get(def_data_member);
-            let def = def_vec.get(def_data_member);
-            match DefinitionData::new(pos, def) {
-                None => {}
-                Some(data) => def_data_vec.push(data),
-            }
-        }
+        let mut def_data_vec: Vec<DefinitionData> = Vec::new();
+        for (pos_mem, def_mem) in pos.split(';').filter_map(|pos| pos.parse().ok()).zip(
+            definition.split(';').map(|def| def.to_string())
+        ) {
+            def_data_vec.push(DefinitionData::new(pos_mem, def_mem));
+        }  ;
         self.definition_data = def_data_vec;
         self
     }
