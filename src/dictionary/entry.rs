@@ -4,7 +4,7 @@ use entry_fields::{Definition, Relative};
 use super::{Short,Long};
 use std::collections::HashMap;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Entry {
     id: Option<i64>,
     headwords: Vec<(String, i64)>,

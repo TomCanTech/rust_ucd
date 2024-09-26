@@ -1,6 +1,6 @@
 use crate::error::{Error, Result};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 
 pub enum Relative {
     Ancestor(i64),
@@ -18,7 +18,7 @@ impl Relative {
         }
     }
 }
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Definition {
     pub pos_id: i64,
     pub def_content: String,

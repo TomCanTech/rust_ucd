@@ -1,11 +1,16 @@
 pub mod dictionary;
 pub mod error;
 pub mod app;
+pub mod ui;
 pub use self::error::{Error, Result};
 
-use app::App;
+use ui::ui;
+use app::{App, CurrentTab};
 use clap::Parser;
+use crossterm::event::{self, Event,KeyCode};
+use ratatui::Terminal;
 use dictionary::Dictionary;
+use ratatui::prelude::Backend;
 use rusqlite::Connection;
 use std::path::PathBuf;
 
@@ -17,14 +22,45 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    let args = Args::parse();
+    //Parse Logic
+    let args: Args = Args::parse();
+    //Init dictionary
     let db_connection = Connection::open(args.db_path)?;
     let dic = Dictionary::new(&db_connection)?;
-    let mut app =App::new();
-    app.dic = dic;
-    let mut terminal =ratatui::init();
+
+    //UI Logic
+    let mut terminal = ratatui::init();
     terminal.clear()?;
-    let app_result = app.run(&mut terminal);
+    let mut app = App::new();
+    let app_result = run_app(&mut terminal, &mut app);
     ratatui::restore();
-    app_result
+
+    if let Ok(pos_mess) = app_result {
+
+    } else if let Err(err) = app_result {
+        println!("{err:?}");
+    }
+
+    Ok(())
+}
+
+fn run_app<B: Backend>(terminal: &mut Terminal<B>,app: &mut App ) -> Result<()> {
+    while !app.exit{
+        terminal.draw(|f| ui(f,app))?;
+        if let Event::Key(key) = event::read()? {
+            if key.kind == event::KeyEventKind::Release{
+                continue;
+            }
+            match app.current_tab {
+                CurrentTab::SelectingTab => match key.code {
+                    KeyCode::Esc => {
+                        app.exit = true
+                    }
+                    _ => {}
+                }
+                _ => {}
+            }
+        }
+    }
+    Ok(())
 }
