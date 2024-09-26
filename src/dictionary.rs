@@ -1,79 +1,68 @@
 pub mod entry;
 
-use crate::dictionary::entry::Entry;
 use crate::error::Result;
-use entry::EntryBuilder;
+use entry::{Entry, EntryBuilder};
+
 use rusqlite::{params, Connection};
+use std::alloc::System;
 use std::collections::HashMap;
+
+pub use String as Short;
+pub use String as Long;
 
 #[derive(PartialEq, Debug)]
 pub struct Dictionary {
     entries: Vec<Entry>,
-    writ_system: HashMap<i64, (String, String)>,
-    pos: HashMap<i64, (String, String)>,
+    writ_systems: HashMap<i64, (Short, Long)>,
+    pos: HashMap<i64, (Short, Long)>,
 }
 
 impl Dictionary {
     pub fn new(conn: &Connection) -> Result<Self> {
         let dic = Dictionary {
-            entries: Self::get_entries(conn)?,
-            writ_system: Self::get_writ_system_data(conn)?,
-            pos: Self::get_pos_data(conn)?,
+            entries: Self::init_entries(conn)?,
+            writ_systems: Self::init_writ_systems(conn)?,
+            pos: Self::init_pos(conn)?,
         };
         Ok(dic)
     }
-    fn get_entries(conn: &Connection) -> Result<Vec<Entry>> {
+    fn init_entries(conn: &Connection) -> Result<Vec<Entry>> {
         let mut stmt = conn.prepare(
-            "SELECT id, headword, mutation, relatives, pos, definition, notes FROM entries",
+            "SELECT id, headwords, mutation, relatives, pos, definitions, notes FROM entries",
         )?;
         let entries_iter = stmt.query_map(params![], |row| {
             Ok(EntryBuilder::new(row.get(0)?)
-                .headword(row.get(1)?)
+                .headwords(row.get(1)?)
                 .mutation(row.get(2)?)
                 .relatives(row.get(3)?)
-                .definition_data(row.get(4)?, row.get(5)?)
+                .definitions(row.get(4)?, row.get(5)?)
                 .notes(row.get(6)?)
                 .build())
         })?;
 
         Ok(entries_iter.flatten().collect())
     }
-    fn get_writ_system_data(conn: &Connection) -> Result<HashMap<i64, (String, String)>> {
+    fn init_writ_systems(conn: &Connection) -> Result<HashMap<i64, (Short, Long)>> {
         let mut stmt = conn.prepare("SELECT id, short, long FROM writ_system")?;
         let system_iter = stmt.query_map(params![], |row| {
-            let mut tuple: (i64, (String, String)) = (0, (String::new(), String::new()));
-            tuple.0 = row.get(0)?;
-            tuple.1 .0 = row.get(1)?;
-            tuple.1 .1 = row.get(2)?;
-            Ok(tuple)
+            Ok((row.get(0)?, (row.get(1)?, row.get(1)?)))
         })?;
-        let mut writ_system_data: HashMap<i64, (String, String)> = HashMap::new();
-        system_iter.filter(|tuple| tuple.is_ok()).for_each(|tuple| {
-            let tuple = tuple.unwrap();
-            writ_system_data.insert(tuple.0, tuple.1);
-        });
-        Ok(writ_system_data)
+        let writ_systems: HashMap<i64, (Short, Long)> =
+            system_iter.filter_map(|sys| sys.ok()).collect();
+        Ok(writ_systems)
     }
-    fn get_pos_data(conn: &Connection) -> Result<HashMap<i64, (String, String)>> {
+    fn init_pos(conn: &Connection) -> Result<HashMap<i64, (String, String)>> {
         let mut stmt = conn.prepare("SELECT id, short, long FROM pos")?;
         let pos_iter = stmt.query_map(params![], |row| {
-            let mut tuple: (i64, (String, String)) = (0, (String::new(), String::new()));
-            tuple.0 = row.get(0)?;
-            tuple.1 .0 = row.get(1)?;
-            tuple.1 .1 = row.get(2)?;
-            Ok(tuple)
+            Ok((row.get(0)?, (row.get(1)?, row.get(1)?)))
         })?;
-        let mut pos_data: HashMap<i64, (String, String)> = HashMap::new();
-        pos_iter.filter(|tuple| tuple.is_ok()).for_each(|tuple| {
-            let tuple = tuple.unwrap();
-            pos_data.insert(tuple.0, tuple.1);
-        });
-        Ok(pos_data)
+        let pos: HashMap<i64, (Short, Long)> = pos_iter.filter_map(|sys| sys.ok()).collect();
+        Ok(pos)
     }
 
     pub fn print_entries(&self) {
-        self.entries
-            .iter()
-            .for_each(|entry| println!("{:?}", entry));
+        for entry in &self.entries {
+            println!("{entry:?}")
+        }
     }
 }

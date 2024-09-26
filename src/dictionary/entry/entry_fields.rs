@@ -19,16 +19,22 @@ impl Relative {
     }
 }
 #[derive(PartialEq, Debug)]
-pub struct DefinitionData {
-    pub pos: i64,
-    pub definition: String,
+pub struct Definition {
+    pub pos_id: i64,
+    pub def_content: String,
 }
 
-impl DefinitionData {
-    pub fn new(pos: i64, def: String) -> Self {
-        DefinitionData{
-            pos,
-            definition: def
+impl Definition {
+    pub fn new(pos_id: &str, def_content: &str) -> Self {
+        match pos_id.parse() {
+            Err(_) => Definition {
+                pos_id: 0,
+                def_content: String::from(def_content),
+            },
+            Ok(pos_id) => Definition {
+                pos_id,
+                def_content: String::from(def_content),
+            },
         }
     }
 }

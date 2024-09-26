@@ -1,61 +1,86 @@
 pub mod entry_fields;
 
-use entry_fields::{DefinitionData, Relative};
-use std::cmp::max;
+use entry_fields::{Definition, Relative};
+use super::{Short,Long};
+use crate::{Result};
+use std::collections::HashMap;
 
 #[derive(PartialEq, Debug)]
 pub struct Entry {
-    id: i64,
-    headword: Vec<(String, i64)>,
+    id: Option<i64>,
+    headwords: Vec<(String, i64)>,
     mutation: Option<i64>,
     relatives: Option<Vec<Relative>>,
-    definition_data: Vec<DefinitionData>,
+    definitions: Vec<Definition>,
     notes: Option<String>,
 }
 
-impl Entry {}
+impl Entry {
+    fn get_writ_systems(&self, writ_systems_map: &HashMap<i64,(Short,Long)>) -> Vec<Option<(Short,Long)>> {
+        let mut writ_systems: Vec<Option<(Short,Long)>> = Vec::with_capacity(self.headwords.len());
+        for hw in &self.headwords {
+            match writ_systems_map.get(&hw.1) {
+                None => writ_systems.push(None),
+                Some(sys) => writ_systems.push(Some(sys.clone())),
+            }
+        }
+        writ_systems
+    }
+    fn get_pos(&self, pos_map: &HashMap<i64,(Short,Long)>) -> Vec<Option<(Short,Long)>> {
+        let mut pos: Vec<Option<(Short,Long)>> = Vec::with_capacity(self.definitions.len());
+        for def in &self.definitions{
+            match pos_map.get(&def.pos_id) {
+                None => pos.push(None),
+                Some(p) => pos.push(Some(p.clone())),
+            }
+        }
+        pos
+    }
+}
+
 pub struct EntryBuilder {
-    id: i64,
-    headword: Vec<(String, i64)>,
+    id: Option<i64>,
+    headwords: Vec<(String, i64)>,
     mutation: Option<i64>,
     relatives: Option<Vec<Relative>>,
-    definition_data: Vec<DefinitionData>,
+    definitions: Vec<Definition>,
     notes: Option<String>,
 }
 
 impl EntryBuilder {
-    pub fn new(id: i64) -> EntryBuilder {
+    pub fn new(id: Option<i64>) -> EntryBuilder {
         EntryBuilder {
             id,
-            headword: vec![],
+            headwords: vec![],
             mutation: None,
             relatives: None,
-            definition_data: vec![],
+            definitions: vec![],
             notes: None,
         }
     }
 
-    pub fn headword(mut self, headword: String) -> Self {
-        let headword = headword.split(';');
-        let mut headword_vec: Vec<(String, i64)> = vec![];
-        for headword in headword {
-            let hw_tuple_vec: Vec<&str> = headword.split(':').collect();
-            let left = hw_tuple_vec[0].to_string();
-            if let Ok(right) = hw_tuple_vec[1].parse() {
-                headword_vec.push((left, right))
+    pub fn headwords(mut self, headwords: String) -> Self {
+        let mut headword_vec: Vec<(String, i64)> = Vec::with_capacity(4);
+        for hw in headwords.split(';') {
+            let hw_tuple_vec: Vec<&str> = hw.split(':').collect();
+            let word = String::from(hw_tuple_vec[0]);
+            if let Ok(writ_system_id) = hw_tuple_vec[1].parse() {
+                headword_vec.push((word, writ_system_id))
+            } else {
+                headword_vec.push((word, 0));
             }
         }
-        self.headword = headword_vec;
+        self.headwords = headword_vec;
         self
     }
     pub fn mutation(mut self, mutation: Option<i64>) -> Self {
         match mutation {
             Some(mutation) => match mutation {
-                0 => self,
-                _ => {
+                1..=5 => {
                     self.mutation = Some(mutation);
                     self
                 }
+                _ => self,
             },
             None => self,
         }
@@ -64,7 +89,7 @@ impl EntryBuilder {
         match relatives {
             Some(relatives) => {
                 let relatives = relatives.split(';');
-                let mut relatives_vec = vec![];
+                let mut relatives_vec = Vec::with_capacity(8);
                 for relative in relatives {
                     if let Ok(rel) = Relative::new(relative) {
                         relatives_vec.push(rel)
@@ -76,14 +101,12 @@ impl EntryBuilder {
             None => self,
         }
     }
-    pub fn definition_data(mut self, pos: String, definition: String) -> Self {
-        let mut def_data_vec: Vec<DefinitionData> = Vec::new();
-        for (pos_mem, def_mem) in pos.split(';').filter_map(|pos| pos.parse().ok()).zip(
-            definition.split(';').map(|def| def.to_string())
-        ) {
-            def_data_vec.push(DefinitionData::new(pos_mem, def_mem));
-        }  ;
-        self.definition_data = def_data_vec;
+    pub fn definitions(mut self, pos: String, definition: String) -> Self {
+        let mut def_data_vec: Vec<Definition> = Vec::with_capacity(6);
+        for (pos_id, def_cont) in pos.split(';').zip(definition.split(';')) {
+            def_data_vec.push(Definition::new(pos_id, def_cont));
+        }
+        self.definitions = def_data_vec;
         self
     }
     pub fn notes(mut self, notes: Option<String>) -> Self {
@@ -98,10 +121,10 @@ impl EntryBuilder {
     pub fn build(self) -> Entry {
         Entry {
             id: self.id,
-            headword: self.headword,
+            headwords: self.headwords,
             mutation: self.mutation,
             relatives: self.relatives,
-            definition_data: self.definition_data,
+            definitions: self.definitions,
             notes: self.notes,
         }
     }

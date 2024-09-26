@@ -5,14 +5,13 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub enum Error {
     #[from]
     InvalidLeadingChar(String),
-
     //External
     #[from]
     ParseInt(std::num::ParseIntError),
     #[from]
     Rusqlite(rusqlite::Error),
     #[from]
-    IO(std::io::Error)
+    IO(std::io::Error),
 }
 
 impl core::fmt::Display for Error {
