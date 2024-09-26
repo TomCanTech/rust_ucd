@@ -3,6 +3,7 @@ pub mod error;
 pub mod app;
 pub use self::error::{Error, Result};
 
+use app::App;
 use clap::Parser;
 use dictionary::Dictionary;
 use rusqlite::Connection;
@@ -19,6 +20,11 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let db_connection = Connection::open(args.db_path)?;
     let dic = Dictionary::new(&db_connection)?;
-    dic.print_entries();
-    Ok(())
+    let mut app =App::new();
+    app.dic = dic;
+    let mut terminal =ratatui::init();
+    terminal.clear()?;
+    let app_result = app.run(&mut terminal);
+    ratatui::restore();
+    app_result
 }

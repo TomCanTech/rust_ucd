@@ -11,9 +11,9 @@ pub use String as Long;
 
 #[derive(PartialEq, Debug)]
 pub struct Dictionary {
-    entries: Vec<Entry>,
-    writ_systems: HashMap<i64, (Short, Long)>,
-    pos: HashMap<i64, (Short, Long)>,
+    pub entries: Vec<Entry>,
+    pub writ_systems: HashMap<i64, (Short, Long)>,
+    pub pos: HashMap<i64, (Short, Long)>,
 }
 
 impl Dictionary {
