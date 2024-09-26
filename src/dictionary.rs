@@ -4,7 +4,6 @@ use crate::error::Result;
 use entry::{Entry, EntryBuilder};
 
 use rusqlite::{params, Connection};
-use std::alloc::System;
 use std::collections::HashMap;
 
 pub use String as Short;

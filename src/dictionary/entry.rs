@@ -2,7 +2,6 @@ pub mod entry_fields;
 
 use entry_fields::{Definition, Relative};
 use super::{Short,Long};
-use crate::{Result};
 use std::collections::HashMap;
 
 #[derive(PartialEq, Debug)]
