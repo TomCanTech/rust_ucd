@@ -1,24 +1,28 @@
 use std::collections::HashMap;
 
 use crate::dictionary::{entry::Entry, Dictionary};
+use tui_textarea::{TextArea};
 
 pub enum CurrentTab{
     Entries,
     Search,
     Edit,
+    Settings,
     SelectingTab
 }
 
-pub struct App{
+pub struct App<'a>{
     pub dictionary: Option<Dictionary>,
     pub current_tab: CurrentTab,
+    pub tab_index: u16,
     pub currently_editing: Option<Entry>,
+    pub query: TextArea<'a>,
     pub exit: bool
 }
 
-impl App {
+impl App <'_>{
     pub fn new() -> Self {
-        App { dictionary: None, current_tab: CurrentTab::SelectingTab, currently_editing: None, exit: false}
+        App { dictionary: None, current_tab: CurrentTab::SelectingTab, currently_editing: None,tab_index: 0, query: TextArea::default(),exit: false}
     }
     pub fn save_entry(&mut self) {
         match &mut self.dictionary {

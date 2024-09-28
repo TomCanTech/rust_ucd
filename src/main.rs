@@ -13,6 +13,7 @@ use dictionary::Dictionary;
 use ratatui::prelude::Backend;
 use rusqlite::Connection;
 use std::path::PathBuf;
+use tui_textarea::{CursorMove, Input, Key};
 
 #[derive(Parser, Debug)]
 #[command(version,about, long_about = None)]
@@ -32,6 +33,7 @@ fn main() -> Result<()> {
     let mut terminal = ratatui::init();
     terminal.clear()?;
     let mut app = App::new();
+    app.dictionary = Some(dic);
     let app_result = run_app(&mut terminal, &mut app);
     ratatui::restore();
 
@@ -56,10 +58,42 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>,app: &mut App ) -> Result<()> 
                     KeyCode::Esc => {
                         app.exit = true
                     }
+                    KeyCode::Left => {
+                        if app.tab_index > 0 && app.tab_index < 4 {
+                            app.tab_index -= 1
+                        }
+                    }
+                    KeyCode::Right => {
+                        if app.tab_index < 3 {
+                            app.tab_index += 1
+                        }
+                    }
+                    KeyCode::Enter => {
+                        match app.tab_index {
+                            0 => {app.current_tab = CurrentTab::Entries; app.tab_index = 5},
+                            1 => {app.current_tab = CurrentTab::Search; app.tab_index = 5},
+                            2 => {app.current_tab = CurrentTab::Edit; app.tab_index = 5},
+                            3 => {app.current_tab = CurrentTab::Settings; app.tab_index = 5},
+                            _ => {}
+                        } 
+                    }
                     _ => {}
                 }
-                _ => {}
+                CurrentTab::Search => match key.code {
+                    KeyCode::Esc => {
+                        app.current_tab = CurrentTab::SelectingTab;
+                        app.tab_index = 1;
+                    }
+                    KeyCode::Enter | KeyCode::Tab => {},
+                    _ => {app.query.input(key);}
+                }
+                _ => match key.code{
+                    KeyCode::Esc => {app.current_tab = CurrentTab::SelectingTab; app.tab_index = 0},
+                    _ => {}
+                }
+
             }
+
         }
     }
     Ok(())
