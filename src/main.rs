@@ -2,7 +2,7 @@ pub mod dictionary;
 pub mod error;
 pub mod model;
 pub mod ui;
-pub mod event;
+pub mod message;
 pub use self::error::{Error, Result};
 
 use clap::Parser;
