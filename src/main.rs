@@ -1,6 +1,6 @@
 pub mod dictionary;
 pub mod error;
-pub mod app;
+pub mod model;
 pub mod ui;
 pub mod event;
 pub use self::error::{Error, Result};
