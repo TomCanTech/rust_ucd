@@ -3,6 +3,7 @@ pub mod error;
 pub mod model;
 pub mod view;
 pub mod message;
+
 pub use self::error::{Error, Result};
 use clap::Parser;
 use model::{Model,RunningState};
@@ -24,14 +25,12 @@ fn main() -> Result<()> {
     let args: Args = Args::parse();
     //Init dictionary
     let db_connection = Connection::open(args.db_path)?;
-    let dic = Dictionary::new(&db_connection)?;
+    let dictionary = Dictionary::new(&db_connection)?;
 
     //UI Logic
     let mut terminal = ratatui::init();
-    let mut model = Model{
-        dictionary: dic,
-        running_state: RunningState::Running
-    };
+    let mut model = Model::default();
+    model.dictionary = Some(dictionary);
     
     while model.running_state != RunningState::Done {
         terminal.draw(|f| view(&mut model, f))?;

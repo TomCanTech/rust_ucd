@@ -1,7 +1,7 @@
 pub mod entry_fields;
 
+use super::{Long, Short};
 use entry_fields::{Definition, Relative};
-use super::{Short,Long};
 use std::collections::HashMap;
 
 #[derive(PartialEq, Debug, Clone)]
@@ -15,8 +15,11 @@ pub struct Entry {
 }
 
 impl Entry {
-    fn get_writ_systems(&self, writ_systems_map: &HashMap<i64,(Short,Long)>) -> Vec<Option<(Short,Long)>> {
-        let mut writ_systems: Vec<Option<(Short,Long)>> = Vec::with_capacity(self.headwords.len());
+    fn get_writ_systems(
+        &self,
+        writ_systems_map: &HashMap<i64, (Short, Long)>,
+    ) -> Vec<Option<(Short, Long)>> {
+        let mut writ_systems: Vec<Option<(Short, Long)>> = Vec::with_capacity(self.headwords.len());
         for hw in &self.headwords {
             match writ_systems_map.get(&hw.1) {
                 None => writ_systems.push(None),
@@ -25,9 +28,9 @@ impl Entry {
         }
         writ_systems
     }
-    fn get_pos(&self, pos_map: &HashMap<i64,(Short,Long)>) -> Vec<Option<(Short,Long)>> {
-        let mut pos: Vec<Option<(Short,Long)>> = Vec::with_capacity(self.definitions.len());
-        for def in &self.definitions{
+    fn get_pos(&self, pos_map: &HashMap<i64, (Short, Long)>) -> Vec<Option<(Short, Long)>> {
+        let mut pos: Vec<Option<(Short, Long)>> = Vec::with_capacity(self.definitions.len());
+        for def in &self.definitions {
             match pos_map.get(&def.pos_id) {
                 None => pos.push(None),
                 Some(p) => pos.push(Some(p.clone())),
