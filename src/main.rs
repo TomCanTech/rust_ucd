@@ -1,18 +1,18 @@
 pub mod dictionary;
 pub mod error;
+pub mod message;
 pub mod model;
 pub mod view;
-pub mod message;
 
 pub use self::error::{Error, Result};
-use clap::Parser;
-use model::{Model,RunningState, WritingSystemMenu};
-use dictionary::Dictionary;
-use rusqlite::Connection;
-use tui_menu::{MenuItem, MenuState};
-use std::path::PathBuf;
-use tui_textarea::{CursorMove, Input, Key};
 use crate::view::view;
+use clap::Parser;
+use dictionary::Dictionary;
+use model::{Model, RunningState, WritingSystemMenu};
+use rusqlite::Connection;
+use std::path::PathBuf;
+use tui_menu::{MenuItem, MenuState};
+use tui_textarea::{CursorMove, Input, Key};
 
 #[derive(Parser, Debug)]
 #[command(version,about, long_about = None)]
@@ -31,10 +31,12 @@ fn main() -> Result<()> {
     //Init model
     let mut terminal = ratatui::init();
     let mut model = Model::default();
-    let writ_system_menu = WritingSystemMenu{
-        items: dictionary.writ_systems.iter().map(|f| (f.1.0.clone(), f.0.clone())).collect(),
-        selected: 0
-    };
+    let mut writ_system_menu = WritingSystemMenu::default();
+    writ_system_menu.items = dictionary
+        .writ_systems
+        .iter()
+        .map(|f| (f.1 .0.clone(), f.0.clone()))
+        .collect();
     model.settings_state.menus.push(Box::new(writ_system_menu));
     model.dictionary = Some(dictionary);
     //Run app

@@ -1,11 +1,9 @@
-use crate::model::{Model, Window};
+use crate::model::{Menu, Model, Window};
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Paragraph, Tabs,List},
 };
 use symbols::border;
-use tui_menu::Menu;
-
 
 pub fn view(model: &mut Model, frame: &mut Frame) {
     let chunks = Layout::default()
@@ -43,6 +41,33 @@ fn search_view(_model: &mut Model, frame: &mut Frame, area: Rect) {
 }
 
 fn settings_view(model: &mut Model, frame: &mut Frame, area: Rect) {
-    let list: List = List::new(["Preferred Writing System: "]);
+    match model.settings_state.selected_menu {
+        None => {
+            let menu_list = List::new(model.settings_state.menus.iter().map(|f| f.name().as_str()))
+                .highlight_symbol(">>>  ");
+            frame.render_stateful_widget(menu_list, area, &mut model.settings_state.menus_list_state);
+        }
+        Some(menu_index) => {
+            popup_view(frame, model.settings_state.menus.get_mut(menu_index).expect("Indexed into non-existent menu"));
+        }
+    }
 }
 
+fn popup_view(frame: &mut Frame, menu: &mut Box<dyn Menu>) {
+    let menu_name = menu.name().clone();
+    let popup_block = Block::new()
+        .borders(Borders::ALL)
+        .title(menu_name.as_str());
+    let popup_area = center(frame.area(), Constraint::Percentage(80), Constraint::Percentage(80));
+    let list_items: Vec<String> = menu.items().iter().map(|&f| f.clone()).collect();
+    let list: List = List::new(list_items).block(popup_block).highlight_symbol(">>> ");
+    frame.render_stateful_widget(list, popup_area, menu.list_state());
+}
+
+fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect{ 
+    let [area] = Layout::horizontal([horizontal])
+        .flex(layout::Flex::Center)
+        .areas(area);
+    let [area] = Layout::vertical([vertical]).flex(layout::Flex::Center).areas(area);
+    area
+}
