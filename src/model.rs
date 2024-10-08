@@ -54,7 +54,7 @@ pub fn update(model: &mut Model, msg: Message) -> Option<Message> {
             model.selected_tab = model.last_selected_tab;
         }
         Message::Settings(SettingsMsg::SelectMenu) => {
-            model.settings_state.writ_system_menu.activate();
+            model.settings_state.writ_system_menu.select();
             model.selected_setting = Some(SettingsMenu::WritingSystem);
         }
         Message::Settings(SettingsMsg::LeaveMenu) => {
