@@ -4,6 +4,8 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Tabs},
 };
 use symbols::border;
+use tui_menu::Menu;
+
 
 pub fn view(model: &mut Model, frame: &mut Frame) {
     let chunks = Layout::default()
@@ -36,10 +38,12 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
     }
 }
 
-fn search_view(model: &mut Model, frame: &mut Frame, area: Rect) {
+fn search_view(_model: &mut Model, frame: &mut Frame, area: Rect) {
     frame.render_widget(Paragraph::new("SEARCH ME"), area);
 }
 
 fn settings_view(model: &mut Model, frame: &mut Frame, area: Rect) {
-    frame.render_widget(Paragraph::new("hello world"), area);
+    let menu: Menu<i64> = Menu::new();
+    frame.render_stateful_widget(menu, area, &mut model.settings_state.writ_system_menu);
 }
+
