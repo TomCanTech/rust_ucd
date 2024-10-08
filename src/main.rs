@@ -6,7 +6,7 @@ pub mod message;
 
 pub use self::error::{Error, Result};
 use clap::Parser;
-use model::{Model,RunningState};
+use model::{Model,RunningState, WritingSystemMenu};
 use dictionary::Dictionary;
 use rusqlite::Connection;
 use tui_menu::{MenuItem, MenuState};
@@ -31,13 +31,12 @@ fn main() -> Result<()> {
     //Init model
     let mut terminal = ratatui::init();
     let mut model = Model::default();
-    model.dictionary = Some(dictionary);
-    let mut menu_items = vec![];
-    if let Some(dic) = &model.dictionary {
-        dic.writ_systems.iter().for_each(|f| menu_items.push(MenuItem::item(f.1.0.clone(),f.0.clone())));
+    let writ_system_menu = WritingSystemMenu{
+        items: dictionary.writ_systems.iter().map(|f| (f.1.0.clone(), f.0.clone())).collect(),
+        selected: 0
     };
-    model.settings_state.writ_system_menu = MenuState::new(vec![MenuItem::group("Writing System", menu_items)]);
-
+    model.settings_state.menus.push(Box::new(writ_system_menu));
+    model.dictionary = Some(dictionary);
     //Run app
     while model.running_state != RunningState::Done {
         terminal.draw(|f| view(&mut model, f))?;

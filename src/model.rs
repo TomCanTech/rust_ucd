@@ -1,4 +1,3 @@
-use tui_menu::MenuState;
 use crate::{dictionary::Dictionary, message::{Message, SettingsMsg, TabMsg}};
 
 pub struct Model{
@@ -8,7 +7,6 @@ pub struct Model{
     pub selected_tab: usize,
     pub last_selected_tab: usize,
     pub settings_state: SettingsState,
-    pub selected_setting: Option<SettingsMenu>
 }
 
 impl Default for Model {
@@ -20,7 +18,6 @@ impl Default for Model {
             selected_tab: 0,
             last_selected_tab: 0,
             settings_state: SettingsState::default(),
-            selected_setting: None
         }
     }
 }
@@ -54,12 +51,8 @@ pub fn update(model: &mut Model, msg: Message) -> Option<Message> {
             model.selected_tab = model.last_selected_tab;
         }
         Message::Settings(SettingsMsg::SelectMenu) => {
-            model.settings_state.writ_system_menu.select();
-            model.selected_setting = Some(SettingsMenu::WritingSystem);
         }
         Message::Settings(SettingsMsg::LeaveMenu) => {
-            model.settings_state.writ_system_menu.reset();
-            model.selected_setting = None
         }
         _ => {}
        } 
@@ -79,17 +72,34 @@ pub enum Window {
 }
 
 pub struct SettingsState{
-    pub writ_system_menu: tui_menu::MenuState<i64>,
+    pub menus: Vec<Box<dyn Menu>>,
+    pub selected_menu: Option<usize>
+}
+
+pub trait Menu {
+    fn items(&self) -> Vec<&String>;
+    fn selected_item(&self) -> usize;
 }
 
 impl Default for SettingsState {
     fn default() -> Self {
         SettingsState{
-            writ_system_menu: MenuState::new(vec![])
+            menus: vec![],
+            selected_menu: None
         }
     }
 }
 
-pub enum SettingsMenu{
-    WritingSystem
+pub struct WritingSystemMenu{
+    pub items: Vec<(String, i64)>,
+    pub selected: usize
+}
+
+impl Menu for WritingSystemMenu{
+    fn items(&self) -> Vec<&String> {
+        self.items.iter().map(|f| &f.0).collect()
+    }
+    fn selected_item(&self) -> usize {
+        self.selected
+    }
 }

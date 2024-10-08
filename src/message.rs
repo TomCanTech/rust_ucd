@@ -50,7 +50,7 @@ pub enum SettingsMsg{
 }
 
 fn settings_handle_key(key: event::KeyEvent, model: &Model) -> Option<Message> {
-    if model.selected_setting.is_none() {
+    if model.settings_state.selected_menu == None {
         match key.code {
             KeyCode::Enter => Some(Message::Settings(SettingsMsg::SelectMenu)),
             KeyCode::Esc => Some(Message::ExitWindow),

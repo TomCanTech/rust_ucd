@@ -1,7 +1,7 @@
 use crate::model::{Model, Window};
 use ratatui::{
     prelude::*,
-    widgets::{Block, Borders, Paragraph, Tabs},
+    widgets::{Block, Borders, Paragraph, Tabs,List},
 };
 use symbols::border;
 use tui_menu::Menu;
@@ -43,7 +43,6 @@ fn search_view(_model: &mut Model, frame: &mut Frame, area: Rect) {
 }
 
 fn settings_view(model: &mut Model, frame: &mut Frame, area: Rect) {
-    let menu: Menu<i64> = Menu::new();
-    frame.render_stateful_widget(menu, area, &mut model.settings_state.writ_system_menu);
+    let list: List = List::new(["Preferred Writing System: "]);
 }
 
